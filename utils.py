@@ -9,11 +9,10 @@ def API_GET(id: str):
     then make the request through the GET request.
     Return the payload if status code is 200.
     '''
-    print("thread start")
+    print("New thread started")
     auth = base64.b64encode(id.encode('ascii')).decode('ascii')
     headers = {'authorization': auth}
-    response = requests.get("https://eluv.io/items/id", headers=headers)
-    print(response.status_code)
+    response = requests.get("https://eluv.io/items/" + id, headers=headers)
     response.close()
 
     if response.status_code == 200:
