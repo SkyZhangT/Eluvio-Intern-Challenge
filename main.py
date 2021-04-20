@@ -27,6 +27,7 @@ if __name__ == "__main__":
             for line in inputfile:
                 line = line.replace("\n", "")
 
+                # check if in the cache, create new thread if not in
                 if not cache.get(line):
                     cache.put(line)
                     processes.append(executor.submit(API_GET, line))

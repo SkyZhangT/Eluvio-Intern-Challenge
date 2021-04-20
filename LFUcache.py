@@ -1,7 +1,7 @@
 import collections
 
 class DLNode:
-    def __init__(self, key):
+    def __init__(self, key: str):
         self.key = key
         self.freq = 1
         self.prev = self.next = None
@@ -11,6 +11,9 @@ class DLList:
         self._trav = DLNode(None)
         self._trav.next = self._trav.prev = self._trav
         self.size = 0
+    
+    def __len__(self):
+        return self.size
     
     def append(self, node: DLNode):
         node.next = self._trav.next
@@ -38,21 +41,22 @@ class LFU:
         self.capacity = capacity
         
         self.cache = dict()
-        self.freq_map = collections.defaultdict(DLList)
+        self._freq = collections.defaultdict(DLList)
         self.min_freq = 0
+        
         
     def update(self, node: DLNode):
         freq = node.freq
         
-        self.freq_map[freq].pop(node)
-        if self.min_freq == freq and not self.freq_map[freq]:
+        self._freq[freq].pop(node)
+        if self.min_freq == freq and not self._freq[freq]:
             self.min_freq += 1
         
         node.freq += 1
         freq = node.freq
-        self.freq_map[freq].append(node)
+        self._freq[freq].append(node)
     
-    def get(self, key: str) -> bool:
+    def get(self, key: str):
         if key not in self.cache:
             return False
         
@@ -69,12 +73,12 @@ class LFU:
             self.update(node)
         else:
             if self.size == self.capacity:
-                node = self.freq_map[self.min_freq].pop()
+                node = self._freq[self.min_freq].pop()
                 del self.cache[node.key]
                 self.size -= 1
                 
             node = DLNode(key)
             self.cache[key] = node
-            self.freq_map[1].append(node)
+            self._freq[1].append(node)
             self.min_freq = 1
             self.size += 1
