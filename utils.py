@@ -11,7 +11,7 @@ def API_GET(id: str):
     '''
     print("New thread started")
     auth = base64.b64encode(id.encode('ascii')).decode('ascii')
-    headers = {'authorization': auth}
+    headers = {'Authorization': auth}
     response = requests.get("https://eluv.io/items/" + id, headers=headers)
     response.close()
 
