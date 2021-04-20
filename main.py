@@ -3,38 +3,39 @@ import time
 from LRUcache import LRU
 from utils import API_GET
 from LFUcache import LFU
+from concurrent.futures import ThreadPoolExecutor
 
 
 if __name__ == "__main__":
-    result = dict()
+    '''
+    argv[1]: input file name
+    argv[2]: cache type
+    argv[3]: cache capacity
+    '''
+    s = time.time()
+
     cache = None
     if sys.argv[2] == "LRU":
         cache = LRU(int(sys.argv[3]))
     elif sys.argv[2] == "LFU":
         cache = LFU(int(sys.argv[3]))
-
-
+    
+    
+    processes = []
     with open(sys.argv[1], 'r') as inputfile:
-        start_time = time.time()
-        count = 0
-        for i, line in enumerate(inputfile):
-            line = line.replace("\n", "")
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            for line in inputfile:
+                line = line.replace("\n", "")
 
-            print("----------------------------")
-            print(line)
-            print(cache.cache)
+                if not cache.get(line):
+                    cache.put(line)
+                    processes.append(executor.submit(API_GET, line))
+                
+    result = []
+    for p in processes:
+        result.append(p.result())
 
-            if not cache.get(line):
-                API_GET(line)
-                cache.put(line)
-                count += 1
+    print(f"Total time used is {time.time() - s}")
 
-            if count == 5:
-                print(f'{count}, check')
-                duration = time.time() - start_time
-                if duration < 1:
-                    time.sleep(1 - duration)
-                start_time = time.time()
-                count = 0
 
             
